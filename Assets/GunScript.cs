@@ -34,21 +34,40 @@ public class GunScript : MonoBehaviour
         {
             float CurWidth = Input.mousePosition.x;
             float Away = StartWidth - CurWidth;
-            Away /= 10;
+            Away /= 100;
             Away = Mathf.Clamp(Away, 0, 1f);
-
-            if (Away == 1)
+            if (Away >= 0.99f)
             {
-                InsertBulletInsideChamber();
+                InsertNewBullet();
+            }
+            else if (Away <= 0.01f)
+            {
+                EjectInsideBarrel();
             }
             Barrel.localPosition = Vector3.Lerp(BarrelEndPos, BarrelStartPos, Away);
             yield return new WaitForFixedUpdate();
         }
     }
-    
-    void InsertBulletInsideChamber()
+
+    void InsertNewBullet()
     {
-        
+        if (Clip == null) return;
+        if (BulletOnBarrel != null) return;
+
+        print("Loading");
+        BulletOnBarrel = Clip.GiveNextBullet();
+    }
+
+    void EjectInsideBarrel()
+    {
+        if (BulletOnBarrel == null) return;
+
+        print("Ejecting");
+        BulletOnBarrel.transform.SetParent(null);
+        BulletOnBarrel.transform.SetPositionAndRotation(ShellThrowArea.position, ShellThrowArea.rotation);
+        BulletOnBarrel.AddComponent<Rigidbody>().AddForce(transform.right * 2 + transform.up, ForceMode.VelocityChange);
+        BulletOnBarrel.AddComponent<BoxCollider>().size = Vector3.one * 0.005f;
+        BulletOnBarrel = null;
     }
 
     public void DropClip()

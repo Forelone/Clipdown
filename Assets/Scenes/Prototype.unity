@@ -1343,7 +1343,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 8914876593438252497}
         m_TargetAssemblyTypeName: GunScript, Assembly-CSharp
-        m_MethodName: ToggleBarrel
+        m_MethodName: StartTouchingBarrel
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
