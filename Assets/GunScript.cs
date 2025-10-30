@@ -12,10 +12,47 @@ public class GunScript : MonoBehaviour
     [SerializeField] Transform ShellThrowArea;
     [SerializeField] float ClipAcceptDist, ClipRejectDist;
     [SerializeField] float BarrelPushDist;
+    [SerializeField] float Recoil;
 
+    [SerializeField] AudioClip BarrelBack, BarrelFront, Clipdown, Clipup, Shoot; AudioSource ASS; //Because it makes a s~o~u~n~d~
+
+    Transform BarrelEnd;
     public void TryShoot()
     {
         if (BulletOnBarrel == null) return;
+
+        BulletOnBarrel.transform.SetPositionAndRotation(BarrelEnd.position, BarrelEnd.rotation);
+        BulletOnBarrel.transform.SetParent(null);
+        BulletOnBarrel.enabled = true;
+        BulletOnBarrel = null;
+
+        Barrel.GetComponentInChildren<ParticleSystem>().Emit(10);
+
+        ASS.clip = Shoot;
+        ASS.Play();
+    
+        StartCoroutine(ShootHandle());
+    }
+
+    IEnumerator ShootHandle()
+    {
+        for (int i = 0; i < 5; i++)
+        {
+            Barrel.localPosition = Vector3.Lerp(Barrel.localPosition, BarrelEndPos,0.2f);
+            yield return new WaitForFixedUpdate();
+        }
+
+        Barrel.localPosition = BarrelEndPos;
+
+        for (int i = 0; i < 10; i++)
+        {
+            Barrel.localPosition = Vector3.Lerp(Barrel.localPosition, BarrelStartPos, 0.1f);
+            yield return new WaitForFixedUpdate();
+        }
+
+        Barrel.localPosition = BarrelStartPos;
+
+        InsertNewBullet();
     }
 
     Vector3 BarrelStartPos, BarrelEndPos;
@@ -24,11 +61,14 @@ public class GunScript : MonoBehaviour
     {
         BarrelStartPos = Barrel.localPosition;
         BarrelEndPos = BarrelStartPos + Barrel.forward * BarrelPushDist;
+        BarrelEnd = Barrel.Find("Tip");
+        ASS = GetComponent<AudioSource>();
     }
     public void StartTouchingBarrel() => StartCoroutine(FollowMouse());
 
     IEnumerator FollowMouse()
     {
+        bool Chamber = true;
         float StartWidth = Input.mousePosition.x;
         while (Input.GetMouseButton(0))
         {
@@ -36,13 +76,20 @@ public class GunScript : MonoBehaviour
             float Away = StartWidth - CurWidth;
             Away /= 100;
             Away = Mathf.Clamp(Away, 0, 1f);
-            if (Away >= 0.99f)
+            if (Away == 1f && Chamber != true)
             {
+                Chamber = true;
                 InsertNewBullet();
+                ASS.clip = BarrelFront;
+                ASS.Play(); //Shake it.
             }
-            else if (Away <= 0.01f)
+            
+            if (Away == 0f && Chamber != false)
             {
+                Chamber = false;
                 EjectInsideBarrel();
+                ASS.clip = BarrelBack;
+                ASS.Play();
             }
             Barrel.localPosition = Vector3.Lerp(BarrelEndPos, BarrelStartPos, Away);
             yield return new WaitForFixedUpdate();
@@ -54,7 +101,6 @@ public class GunScript : MonoBehaviour
         if (Clip == null) return;
         if (BulletOnBarrel != null) return;
 
-        print("Loading");
         BulletOnBarrel = Clip.GiveNextBullet();
     }
 
@@ -62,7 +108,6 @@ public class GunScript : MonoBehaviour
     {
         if (BulletOnBarrel == null) return;
 
-        print("Ejecting");
         BulletOnBarrel.transform.SetParent(null);
         BulletOnBarrel.transform.SetPositionAndRotation(ShellThrowArea.position, ShellThrowArea.rotation);
         BulletOnBarrel.AddComponent<Rigidbody>().AddForce(transform.right * 2 + transform.up, ForceMode.VelocityChange);
@@ -77,6 +122,9 @@ public class GunScript : MonoBehaviour
         Clip.GetComponent<Rigidbody>().isKinematic = false;
         Clip.GetComponent<Collider>().enabled = true;
         Clip.transform.SetParent(null);
+
+        ASS.clip = Clipdown;
+        ASS.Play();
 
         Clip = null;
     }
@@ -113,6 +161,9 @@ public class GunScript : MonoBehaviour
             RG.transform.SetParent(transform);
             Clip.transform.SetPositionAndRotation(ClipInsertArea.position, ClipInsertArea.rotation);
             this.Clip = Clip;
+
+            ASS.clip = Clipup;
+            ASS.Play();
         }
         Physics.IgnoreCollision(Clip.GetComponent<Collider>(), GetComponent<Collider>(),false);
     }

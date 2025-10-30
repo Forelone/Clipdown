@@ -54,6 +54,7 @@ public class HandScript : MonoBehaviour
         bool PressedUseButton = Input.GetKeyDown(KeyCode.E) || (HoldingInspectButton && Input.GetMouseButtonDown(0));
         bool HoldingUseButton = Input.GetMouseButton(0) && HoldingInspectButton;
         bool HoldingAimButton = Input.GetMouseButton(1);
+        bool PressedExecuteButton = Input.GetMouseButtonDown(0) && !HoldingInspectButton;
         bool PressedCancelButton = Input.GetMouseButtonDown(1);
         Quaternion TargetHoldAng = Quaternion.Euler(0f, -45f, -35f);
         Vector3 TargetHoldPos = Eye.transform.up * 0.35f - Eye.transform.forward * 0.25f;
@@ -61,7 +62,7 @@ public class HandScript : MonoBehaviour
         Vector3 TargetHandPos = new Vector3(0.350f, 1.4f, 0.65f);
         Vector3 TargetAimPos = Eye.transform.localPosition + Eye.transform.forward * .3f + Eye.transform.up * -.2f;
 
-        if (CurrentlyHoldingItem.TryGetComponent(out Item I))
+        if (CurrentlyHoldingItem != null && CurrentlyHoldingItem.TryGetComponent(out Item I))
         {
             TargetHandPos = I.DefaultHoldPos;
             TargetHoldAng = Quaternion.Euler(I.InspectHoldAng);
@@ -119,6 +120,8 @@ public class HandScript : MonoBehaviour
 
         if (PressedDropButton) DropFromHand();
 
+        if (PressedExecuteButton && CurrentlyHoldingItem != null) CurrentlyHoldingItem.GetComponent<Item>().Execution.Invoke();
+
         EnableCursor(HoldingInspectButton);
         Hand.localRotation = Quaternion.Lerp(Hand.localRotation, TargetHoldAng, 0.1f);
         Hand.localPosition = Vector3.Lerp(Hand.localPosition, TargetHandPos, 0.1f);
@@ -162,7 +165,7 @@ public class HandScript : MonoBehaviour
         float TotalDist = Dist;
         Vector3 Dir = (Hand.position - ItemToEquip.position).normalized;
         ItemRG.isKinematic = true;
-        print(ItemRG.isKinematic);
+//        print(ItemRG.isKinematic);
         while (Dist > 1)
         {
             Dist = Vector3.Distance(Hand.position, ItemToEquip.position);

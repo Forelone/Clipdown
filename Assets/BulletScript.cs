@@ -31,7 +31,7 @@ public class BulletScript : MonoBehaviour
         }
         CL.enabled = true;
 
-        Trail.enabled = true;
+        if (Trail != null) Trail.enabled = true;
         RG.AddForce(transform.forward * Speed, ForceMode.VelocityChange);
         Destroy(this);
     }
