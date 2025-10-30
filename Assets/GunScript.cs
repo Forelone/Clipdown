@@ -25,10 +25,8 @@ public class GunScript : MonoBehaviour
         BarrelStartPos = Barrel.localPosition;
         BarrelEndPos = BarrelStartPos + Barrel.forward * BarrelPushDist;
     }
-
-    bool BarrelReady = false;
     public void StartTouchingBarrel() => StartCoroutine(FollowMouse());
-    
+
     IEnumerator FollowMouse()
     {
         float StartWidth = Input.mousePosition.x;
@@ -38,17 +36,19 @@ public class GunScript : MonoBehaviour
             float Away = StartWidth - CurWidth;
             Away /= 10;
             Away = Mathf.Clamp(Away, 0, 1f);
+
+            if (Away == 1)
+            {
+                InsertBulletInsideChamber();
+            }
             Barrel.localPosition = Vector3.Lerp(BarrelEndPos, BarrelStartPos, Away);
             yield return new WaitForFixedUpdate();
         }
-
-        Vector3 BarrelCurrentPos = Barrel.localPosition;
-
-        for (int i = 0; i < 10; i++)
-        {
-            Barrel.localPosition = Vector3.Lerp(BarrelCurrentPos, BarrelStartPos, i / 10);
-            yield return new WaitForFixedUpdate();
-        }
+    }
+    
+    void InsertBulletInsideChamber()
+    {
+        
     }
 
     public void DropClip()
