@@ -66,6 +66,7 @@
   <ItemGroup>
     <Compile Include="Assets/BulletScript.cs" />
     <Compile Include="Assets/GunScript.cs" />
+    <Compile Include="Assets/Item.cs" />
     <Compile Include="Assets/HandScript.cs" />
     <Compile Include="Assets/ClipScript.cs" />
   </ItemGroup>

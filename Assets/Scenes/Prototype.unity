@@ -1249,6 +1249,7 @@ GameObject:
   - component: {fileID: 8914876593438252495}
   - component: {fileID: 8914876593438252496}
   - component: {fileID: 8914876593438252497}
+  - component: {fileID: 8914876593438252498}
   m_Layer: 0
   m_Name: Penetrator
   m_TagString: Untagged
@@ -1439,6 +1440,22 @@ MonoBehaviour:
   ClipAcceptDist: 0.05
   ClipRejectDist: 0.3
   BarrelPushDist: -0.08
+--- !u!114 &8914876593438252498
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8139079487227987831}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9a85afc1a2c8e2f02952ab7415160b67, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  InspectHoldAng: {x: 0, y: 0, z: 0}
+  InspectHoldPos: {x: 0, y: 0, z: 0}
+  DefaultHoldPos: {x: 0.35, y: 1.4, z: 0.65}
+  AimHoldPos: {x: 0, y: -0.25, z: 0.3}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

@@ -55,9 +55,27 @@ public class HandScript : MonoBehaviour
         bool HoldingUseButton = Input.GetMouseButton(0) && HoldingInspectButton;
         bool HoldingAimButton = Input.GetMouseButton(1);
         bool PressedCancelButton = Input.GetMouseButtonDown(1);
-        Quaternion TargetAng = Quaternion.Euler(0f, -45f, -35f);
+        Quaternion TargetHoldAng = Quaternion.Euler(0f, -45f, -35f);
+        Vector3 TargetHoldPos = Eye.transform.up * 0.35f - Eye.transform.forward * 0.25f;
         Vector3 TargetInvPos = new Vector3(0, 1, 0.25f);
         Vector3 TargetHandPos = new Vector3(0.350f, 1.4f, 0.65f);
+        Vector3 TargetAimPos = Eye.transform.localPosition + Eye.transform.forward * .3f + Eye.transform.up * -.2f;
+
+        if (CurrentlyHoldingItem.TryGetComponent(out Item I))
+        {
+            TargetHandPos = I.DefaultHoldPos;
+            TargetHoldAng = Quaternion.Euler(I.InspectHoldAng);
+
+            TargetAimPos = Eye.transform.localPosition;
+            TargetAimPos += Eye.transform.right * I.AimHoldPos.x;
+            TargetAimPos += Eye.transform.up * I.AimHoldPos.y;
+            TargetAimPos += Eye.transform.forward * I.AimHoldPos.z;
+
+            TargetHoldPos = Eye.transform.localPosition;
+            TargetHoldPos += Eye.transform.right * I.InspectHoldPos.x;
+            TargetHoldPos += Eye.transform.up * I.InspectHoldPos.y;
+            TargetHoldPos += Eye.transform.forward * I.InspectHoldPos.z;
+        }
 
         Ray EyeRay = Cam.ScreenPointToRay(Input.mousePosition);
         RaycastHit hit;
@@ -87,22 +105,22 @@ public class HandScript : MonoBehaviour
         }
         else PassiveHoldingItem = null;
 
-        if (HoldingAimButton) TargetHandPos = Eye.transform.localPosition + Eye.transform.forward * .3f + Eye.transform.up * -.2f;
+        if (HoldingAimButton) TargetHandPos = TargetAimPos;
 
         if (!HoldingInspectButton)
         {
-            TargetAng = Quaternion.Euler(Vector3.zero);
+            TargetHoldAng = Quaternion.Euler(Vector3.zero);
         }
         else
         {
             TargetInvPos = Eye.transform.localPosition + Eye.transform.forward * 0.25f + Eye.transform.up * -0.25f;
-            TargetHandPos += Eye.transform.up * 0.35f - Eye.transform.forward * 0.25f;
+            TargetHandPos = TargetHoldPos;
         }
 
         if (PressedDropButton) DropFromHand();
 
         EnableCursor(HoldingInspectButton);
-        Hand.localRotation = Quaternion.Lerp(Hand.localRotation, TargetAng, 0.1f);
+        Hand.localRotation = Quaternion.Lerp(Hand.localRotation, TargetHoldAng, 0.1f);
         Hand.localPosition = Vector3.Lerp(Hand.localPosition, TargetHandPos, 0.1f);
         Inventory.localPosition = Vector3.Lerp(Inventory.localPosition, TargetInvPos, 0.1f);
     }
