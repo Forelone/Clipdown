@@ -5,6 +5,7 @@ using UnityEngine.Events;
 
 public class Item : MonoBehaviour
 {
+    public bool Inventory = true;
     public Vector3 InspectHoldAng, InspectHoldPos;
     public Vector3 DefaultHoldPos = new Vector3(0.350f, 1.4f, 0.65f), AimHoldPos;
 

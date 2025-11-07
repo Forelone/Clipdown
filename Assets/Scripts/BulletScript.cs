@@ -38,6 +38,7 @@ public class BulletScript : MonoBehaviour
 
     void OnCollisionEnter(Collision collision)
     {
+        if (!enabled) return;
         Destroy(gameObject);
     }
 }

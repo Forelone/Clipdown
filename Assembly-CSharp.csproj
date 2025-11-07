@@ -65,10 +65,10 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Assets/Scripts/BulletScript.cs" />
+    <Compile Include="Assets/Scripts/DoorScript.cs" />
     <Compile Include="Assets/Scripts/GunScript.cs" />
     <Compile Include="Assets/Scripts/ClipScript.cs" />
     <Compile Include="Assets/Scripts/HandScript.cs" />
-    <Compile Include="Assets/DoorScript.cs" />
     <Compile Include="Assets/Scripts/MovementScript.cs" />
     <Compile Include="Assets/Scripts/Item.cs" />
   </ItemGroup>

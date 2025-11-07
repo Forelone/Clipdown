@@ -126,6 +126,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9a85afc1a2c8e2f02952ab7415160b67, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  Inventory: 0
   InspectHoldAng: {x: -15, y: -45, z: 0}
   InspectHoldPos: {x: 0.3, y: 0, z: 0.5}
   DefaultHoldPos: {x: 0.35, y: -0.4, z: 0.65}

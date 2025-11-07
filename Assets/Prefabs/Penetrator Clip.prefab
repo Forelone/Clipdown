@@ -96,6 +96,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7c9d6067f8444d02b96f3c077ce4d1d2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  BulletType: Pistol
   Speed: 1605
   DamageMul: 1
   Trail: {fileID: 0}
@@ -195,6 +196,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7c9d6067f8444d02b96f3c077ce4d1d2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  BulletType: Pistol
   Speed: 1605
   DamageMul: 1
   Trail: {fileID: 0}
@@ -294,6 +296,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7c9d6067f8444d02b96f3c077ce4d1d2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  BulletType: Pistol
   Speed: 1605
   DamageMul: 1
   Trail: {fileID: 0}
@@ -393,6 +396,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7c9d6067f8444d02b96f3c077ce4d1d2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  BulletType: Pistol
   Speed: 1605
   DamageMul: 1
   Trail: {fileID: 0}
@@ -492,6 +496,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7c9d6067f8444d02b96f3c077ce4d1d2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  BulletType: Pistol
   Speed: 1605
   DamageMul: 1
   Trail: {fileID: 0}
@@ -591,6 +596,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7c9d6067f8444d02b96f3c077ce4d1d2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  BulletType: Pistol
   Speed: 1605
   DamageMul: 0.2
   Trail: {fileID: 0}
@@ -608,6 +614,7 @@ GameObject:
   - component: {fileID: 2648086775715728199}
   - component: {fileID: 2879645122274295794}
   - component: {fileID: 836308171748520926}
+  - component: {fileID: 6567665694835236239}
   m_Layer: 0
   m_Name: Penetrator Clip
   m_TagString: Untagged
@@ -698,6 +705,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4a3e4be7d1a7b1be29a6680ccb790bc6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  AcceptedBulletType: Pistol
   BulletSlots:
   - {fileID: 8324268257883441335}
   - {fileID: 840505679964165956}
@@ -705,6 +713,13 @@ MonoBehaviour:
   - {fileID: 2439109886410242116}
   - {fileID: 7259303750338394961}
   - {fileID: 1436831123233907794}
+  BulletPos:
+  - {x: 0, y: 0.00832, z: 0.0032}
+  - {x: 0, y: 0.00523, z: 0.0024}
+  - {x: 0, y: 0.00186, z: 0.00129}
+  - {x: 0, y: -0.00161, z: -0.00015}
+  - {x: 0, y: -0.00505, z: -0.00125}
+  - {x: 0, y: -0.0085, z: -0.00255}
 --- !u!65 &2879645122274295794
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -753,3 +768,22 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 0
   m_CollisionDetection: 0
+--- !u!114 &6567665694835236239
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9173824888591111268}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9a85afc1a2c8e2f02952ab7415160b67, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  InspectHoldAng: {x: 0, y: -90, z: 0}
+  InspectHoldPos: {x: 0.35, y: 0, z: 0.5}
+  DefaultHoldPos: {x: 0.35, y: 0, z: 0.65}
+  AimHoldPos: {x: 0.35, y: 0, z: 0.8}
+  Execution:
+    m_PersistentCalls:
+      m_Calls: []

@@ -56,11 +56,17 @@ public class HandScript : MonoBehaviour
     void FixedUpdate()
     {
         bool HoldingInspectButton = Input.GetKey(KeyCode.R);
+
         bool PressedDropButton = Input.GetKeyDown(KeyCode.Q);
-        bool PressedUseButton = Input.GetKeyDown(KeyCode.E) || (HoldingInspectButton && Input.GetMouseButtonDown(0));
-        bool HoldingUseButton = Input.GetMouseButton(0) && HoldingInspectButton;
+
+        bool PressedUseButton = Input.GetKeyDown(KeyCode.E);
+        bool HoldingUseButton = Input.GetKey(KeyCode.E);
+
         bool HoldingAimButton = Input.GetMouseButton(1);
-        bool PressedExecuteButton = Input.GetMouseButtonDown(0) && !HoldingInspectButton;
+
+        bool PressedExecuteButton = Input.GetMouseButtonDown(0);
+        bool HoldingExecuteButton = Input.GetMouseButton(0);
+        
         bool PressedCancelButton = Input.GetMouseButtonDown(1);
         Quaternion TargetHoldAng = Quaternion.Euler(Eye.eulerAngles + new Vector3(0f, -45f, -35f));
         Vector3 TargetHoldPos = Eye.transform.position + Eye.transform.up * 0.35f - Eye.transform.forward * 0.25f;
@@ -91,18 +97,21 @@ public class HandScript : MonoBehaviour
         Ray EyeRay = Cam.ScreenPointToRay(Input.mousePosition);
         RaycastHit hit = new RaycastHit();
         bool DidHit = Physics.Raycast(EyeRay, out hit, 2f);
-        if (PressedUseButton && DidHit)
+        if (HoldingInspectButton && DidHit)
         {
-            if (hit.collider.transform.TryGetComponent(out Button B))
+            //Door opening etc.
+            if (PressedExecuteButton && hit.collider.transform.TryGetComponent(out Button B))
             {
                 B.onClick.Invoke();
             }
 
-            if (hit.transform.TryGetComponent(out Item Pickup) && CurrentlyHoldingItem == null)
+            //Equip to primary
+            if (HoldingUseButton && hit.transform.TryGetComponent(out Item Pickup) && CurrentlyHoldingItem == null)
             {
                 StartCoroutine(EquipToHand(hit.transform));
             }
 
+            //Pick stuff up for a while
             if (hit.collider != null && hit.collider.attachedRigidbody != null && hit.transform.GetComponent<Rigidbody>() != CurrentlyHoldingItem)
             {
                 PassiveHoldingItem = hit.collider.attachedRigidbody;
@@ -111,7 +120,7 @@ public class HandScript : MonoBehaviour
             }
         }
 
-        if (HoldingUseButton && PassiveHoldingItem != null)
+        if (HoldingExecuteButton && PassiveHoldingItem != null)
         {
             var TargetPos = EyeRay.origin + EyeRay.direction * 0.5f;
             var DirPos = TargetPos - PassiveHoldingItem.position;
@@ -144,7 +153,7 @@ public class HandScript : MonoBehaviour
 
         if (PressedDropButton) DropFromHand();
 
-        if (PressedExecuteButton && CurrentlyHoldingItem != null) CurrentlyHoldingItem.GetComponent<Item>().Execution.Invoke();
+        if (PressedExecuteButton && !HoldingInspectButton && CurrentlyHoldingItem != null) CurrentlyHoldingItem.GetComponent<Item>().Execution.Invoke();
 
         EnableCursor(HoldingInspectButton);
 
@@ -225,29 +234,34 @@ public class HandScript : MonoBehaviour
 
     IEnumerator HaulToInventory(Transform ItemToHaul, int Index = 0)
     {
-        bool JoinOnSuccess = false;
-        for (int i = 0; i < CarryingItems.Length; i++)
+        bool Quit = false;
+        if (ItemToHaul.TryGetComponent(out Item I) && I.Inventory == false) Quit = true;
+        if (!Quit)
         {
-            if (CarryingItems[i] == null) { Index = i; JoinOnSuccess = true; break; }
+            bool JoinOnSuccess = false;
+            for (int i = 0; i < CarryingItems.Length; i++)
+            {
+                if (CarryingItems[i] == null) { Index = i; JoinOnSuccess = true; break; }
+            }
+
+            var RG = ItemToHaul.GetComponent<Rigidbody>();
+            RG.isKinematic = true;
+
+            Vector3 TargetPos = Inventory.position;
+            float Dist = Vector3.Distance(ItemToHaul.position, TargetPos);
+            while (Dist > 1)
+            {
+                Vector3 Dir = (TargetPos - ItemToHaul.position).normalized * Time.fixedDeltaTime * 10;
+                ItemToHaul.Translate(Dir, Space.World);
+                Dist = Vector3.Distance(ItemToHaul.position, TargetPos);
+                yield return new WaitForFixedUpdate();
+            }
+
+            float Squish = 0.15f;
+            ItemToHaul.position = TargetPos + transform.right * Index * Squish - transform.right * (InventoryPos.Length - 1) * Squish / 2;
+            ItemToHaul.rotation = transform.rotation;
+            ItemToHaul.SetParent(Inventory);
+            if (JoinOnSuccess) CarryingItems[Index] = RG;
         }
-
-        var RG = ItemToHaul.GetComponent<Rigidbody>();
-        RG.isKinematic = true;
-
-        Vector3 TargetPos = Inventory.position;
-        float Dist = Vector3.Distance(ItemToHaul.position, TargetPos);
-        while (Dist > 1)
-        {
-            Vector3 Dir = (TargetPos - ItemToHaul.position).normalized * Time.fixedDeltaTime * 10;
-            ItemToHaul.Translate(Dir, Space.World);
-            Dist = Vector3.Distance(ItemToHaul.position, TargetPos);
-            yield return new WaitForFixedUpdate();
-        }
-
-        float Squish = 0.15f;
-        ItemToHaul.position = TargetPos + transform.right * Index * Squish - transform.right * (InventoryPos.Length - 1) * Squish / 2;
-        ItemToHaul.rotation = transform.rotation;
-        ItemToHaul.SetParent(Inventory);
-        if (JoinOnSuccess) CarryingItems[Index] = RG;
     }
 }
