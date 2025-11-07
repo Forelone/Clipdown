@@ -16,6 +16,8 @@ public class GunScript : MonoBehaviour
 
     [SerializeField] AudioClip BarrelBack, BarrelFront, Clipdown, Clipup, Shoot; AudioSource ASS; //Because it makes a s~o~u~n~d~
 
+    [SerializeField] Vector3 BarrelCockAxis = Vector3.forward;
+
     Transform BarrelEnd;
     Rigidbody RG;
 
@@ -67,8 +69,13 @@ public class GunScript : MonoBehaviour
 
     void Awake()
     {
+        var AllAxis =
+        BarrelCockAxis.z * Barrel.forward +
+        BarrelCockAxis.x * Barrel.right +
+        BarrelCockAxis.y * Barrel.up;
+
         BarrelStartPos = Barrel.localPosition;
-        BarrelEndPos = BarrelStartPos + Barrel.forward * BarrelPushDist;
+        BarrelEndPos = BarrelStartPos + AllAxis * BarrelPushDist;
         BarrelEnd = Barrel.Find("Tip");
         ASS = GetComponent<AudioSource>();
         RG = GetComponent<Rigidbody>();

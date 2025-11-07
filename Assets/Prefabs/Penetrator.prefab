@@ -113,6 +113,7 @@ MonoBehaviour:
   Clipdown: {fileID: 8300000, guid: de9a10ee3afaa8be499a31a25f5ed78e, type: 3}
   Clipup: {fileID: 8300000, guid: c8a04d6479849b5c7b03b6e37d4da8e9, type: 3}
   Shoot: {fileID: 8300000, guid: c0278a725868ee413b35ba5e16039449, type: 3}
+  BarrelCockAxis: {x: 0, y: 1, z: 0}
 --- !u!114 &4717151138549574912
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -127,7 +128,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   InspectHoldAng: {x: -15, y: -45, z: 0}
   InspectHoldPos: {x: 0.3, y: 0, z: 0.5}
-  DefaultHoldPos: {x: 0.35, y: 1.4, z: 0.65}
+  DefaultHoldPos: {x: 0.35, y: -0.4, z: 0.65}
   AimHoldPos: {x: 0, y: -0.18, z: 0.4}
   Execution:
     m_PersistentCalls:

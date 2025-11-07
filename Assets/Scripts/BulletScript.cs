@@ -19,7 +19,7 @@ public class BulletScript : MonoBehaviour
         if (!TryGetComponent(out RG))
         {
             RG = gameObject.AddComponent<Rigidbody>(); //I'M A GENIUS! HAHAHAHAHAHA!
-            RG.collisionDetectionMode = CollisionDetectionMode.Continuous;
+            RG.collisionDetectionMode = CollisionDetectionMode.ContinuousDynamic;
             RG.mass = (float)DamageMul;
         }
 
@@ -27,13 +27,17 @@ public class BulletScript : MonoBehaviour
         if (!TryGetComponent(out CL))
         {
             var CLB = gameObject.AddComponent<BoxCollider>();
-            CLB.size = Vector3.one * 0.05f;
+            CLB.size = Vector3.one * 0.001f;
             CL = CLB;
         }
         CL.enabled = true;
 
         if (Trail != null) Trail.enabled = true;
         RG.AddForce(transform.forward * Speed, ForceMode.VelocityChange);
-        Destroy(this);
+    }
+
+    void OnCollisionEnter(Collision collision)
+    {
+        Destroy(gameObject);
     }
 }

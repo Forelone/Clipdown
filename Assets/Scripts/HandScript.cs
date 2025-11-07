@@ -5,7 +5,7 @@ using UnityEngine.UI;
 public class HandScript : MonoBehaviour
 {
     Transform Hand, Inventory;
-    Rigidbody RGHand;
+    Rigidbody RGHand, RGBody;
     Transform Eye;
     Camera Cam;
     [SerializeField] Rigidbody CurrentlyHoldingItem;
@@ -27,6 +27,7 @@ public class HandScript : MonoBehaviour
         Cam = GetComponentInChildren<Camera>();
         Eye = Cam.transform;
         RGHand = Hand.GetComponent<Rigidbody>();
+        RGBody = GetComponent<Rigidbody>();
 
         InventoryPos = new Vector3[CarryingItems.Length];
         for (int i = 0; i < InventoryPos.Length; i++)
@@ -61,35 +62,45 @@ public class HandScript : MonoBehaviour
         bool HoldingAimButton = Input.GetMouseButton(1);
         bool PressedExecuteButton = Input.GetMouseButtonDown(0) && !HoldingInspectButton;
         bool PressedCancelButton = Input.GetMouseButtonDown(1);
-        Quaternion TargetHoldAng = Quaternion.Euler(0f, -45f, -35f);
-        Vector3 TargetHoldPos = Eye.transform.up * 0.35f - Eye.transform.forward * 0.25f;
-        Vector3 TargetInvPos = new Vector3(0, 1, 0.25f);
-        Vector3 TargetHandPos = new Vector3(0.350f, 1.4f, 0.65f);
-        Vector3 TargetAimPos = Eye.transform.localPosition + Eye.transform.forward * .3f + Eye.transform.up * -.2f;
+        Quaternion TargetHoldAng = Quaternion.Euler(Eye.eulerAngles + new Vector3(0f, -45f, -35f));
+        Vector3 TargetHoldPos = Eye.transform.position + Eye.transform.up * 0.35f - Eye.transform.forward * 0.25f;
+        Vector3 TargetInvPos = transform.position + transform.up + transform.forward * 0.25f;
+        Vector3 TargetHandPos = Eye.transform.position + Eye.transform.right * .350f + Eye.transform.up * -0.2f + Eye.transform.forward * .65f;
+        Vector3 TargetAimPos = Eye.transform.localPosition + Vector3.forward * .3f + Vector3.up * -.2f;
 
         if (CurrentlyHoldingItem != null && CurrentlyHoldingItem.TryGetComponent(out Item I))
         {
-            TargetHandPos = I.DefaultHoldPos;
-            TargetHoldAng = Quaternion.Euler(I.InspectHoldAng);
+            TargetHandPos = Eye.transform.position;
+            TargetHandPos += transform.right * I.DefaultHoldPos.x;
+            TargetHandPos += transform.up * I.DefaultHoldPos.y;
+            TargetHandPos += Eye.transform.forward * I.DefaultHoldPos.z;            
 
-            TargetAimPos = Eye.transform.localPosition;
+            TargetHoldAng = Quaternion.Euler(Eye.eulerAngles + I.InspectHoldAng);
+
+            TargetAimPos = Eye.transform.position;
             TargetAimPos += Eye.transform.right * I.AimHoldPos.x;
             TargetAimPos += Eye.transform.up * I.AimHoldPos.y;
             TargetAimPos += Eye.transform.forward * I.AimHoldPos.z;
 
-            TargetHoldPos = Eye.transform.localPosition;
+            TargetHoldPos = Eye.transform.position;
             TargetHoldPos += Eye.transform.right * I.InspectHoldPos.x;
             TargetHoldPos += Eye.transform.up * I.InspectHoldPos.y;
             TargetHoldPos += Eye.transform.forward * I.InspectHoldPos.z;
         }
 
         Ray EyeRay = Cam.ScreenPointToRay(Input.mousePosition);
-        RaycastHit hit;
-        if (PressedUseButton && Physics.Raycast(EyeRay, out hit, 2f))
+        RaycastHit hit = new RaycastHit();
+        bool DidHit = Physics.Raycast(EyeRay, out hit, 2f);
+        if (PressedUseButton && DidHit)
         {
             if (hit.collider.transform.TryGetComponent(out Button B))
             {
                 B.onClick.Invoke();
+            }
+
+            if (hit.transform.TryGetComponent(out Item Pickup) && CurrentlyHoldingItem == null)
+            {
+                StartCoroutine(EquipToHand(hit.transform));
             }
 
             if (hit.collider != null && hit.collider.attachedRigidbody != null && hit.transform.GetComponent<Rigidbody>() != CurrentlyHoldingItem)
@@ -107,19 +118,27 @@ public class HandScript : MonoBehaviour
             DirPos /= 0.1f;
 
             if (!PassiveHoldingItem.isKinematic)
-            PassiveHoldingItem.velocity = DirPos;
+                PassiveHoldingItem.velocity = DirPos;
+            
+            if (HoldingAimButton)
+            { StartCoroutine(HaulToInventory(PassiveHoldingItem.transform)); }
         }
         else PassiveHoldingItem = null;
 
-        if (HoldingAimButton) TargetHandPos = TargetAimPos;
+        if (HoldingAimButton && CurrentlyHoldingItem != null) TargetHandPos = TargetAimPos;
 
         if (!HoldingInspectButton)
         {
-            TargetHoldAng = Quaternion.Euler(Vector3.zero);
+            TargetHoldAng = Eye.rotation;
+        }
+        else if (CurrentlyHoldingItem == null)
+        {
+            //TargetInvPos = transform.localPosition + Vector3.forward * 0.25f + Vector3.up * -0.25f;
+            TargetHandPos = hit.point;
+            TargetHoldAng = Eye.rotation;
         }
         else
         {
-            TargetInvPos = Eye.transform.localPosition + Eye.transform.forward * 0.25f + Eye.transform.up * -0.25f;
             TargetHandPos = TargetHoldPos;
         }
 
@@ -130,12 +149,11 @@ public class HandScript : MonoBehaviour
         EnableCursor(HoldingInspectButton);
 
         float HeadSway = RGHand.velocity.magnitude + RGHand.angularVelocity.magnitude;
-        Eye.localRotation = Quaternion.Euler(Random.Range(-HeadSway,HeadSway) * Vector3.forward);
         Cam.fieldOfView = DefaultFOV + HeadSway;
 
-        Hand.localRotation = Quaternion.Lerp(Hand.localRotation, TargetHoldAng, 0.1f);
-        Hand.localPosition = Vector3.Lerp(Hand.localPosition, TargetHandPos, 0.1f);
-        Inventory.localPosition = Vector3.Lerp(Inventory.localPosition, TargetInvPos, 0.1f);
+        Hand.rotation = Quaternion.Lerp(Hand.rotation, TargetHoldAng, 0.1f);
+        Hand.position = Vector3.Lerp(Hand.position, TargetHandPos, SkillLevel);
+        Inventory.position = Vector3.Lerp(Inventory.position, TargetInvPos, 0.1f);
         RGHand.angularVelocity = Vector3.Lerp(RGHand.angularVelocity,Vector3.zero,SkillLevel);
         RGHand.velocity = Vector3.Lerp(RGHand.velocity, Vector3.zero, SkillLevel);
     }
